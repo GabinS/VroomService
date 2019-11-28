@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Services;
+using VroomService.Model;
 
 namespace VroomService
 {
@@ -23,16 +24,86 @@ namespace VroomService
             return "Hello World";
         }
 
-        // TODO connexion (enregistrement du token)
+        #region Service
 
-        // TODO vérification du connexion valide
+        // TODO Connexion (enregistrement du token)
+        [WebMethod]
+        public string Authentication()
+        {
+            return null;
+        }
+        
+        // TODO Inscription
+        [WebMethod]
+        public string Registration()
+        {
+            return null;
+        }
 
-        // TODO récupérer la liste des voitures disponible
+        // TODO Modifier un compte client
+        [WebMethod]
+        public string EditAccount()
+        {
+            return null;
+        }
 
-        // TODO reserver une voiture (par id)
+        // TODO Récupérer les infos d'un compte (par id)
+        [WebMethod]
+        public User GetAccount()
+        {
+            return null;
+        }
 
-        // TODO récuprer la liste des réservations
+        // TODO Récupérer la liste des voitures disponible
+        [WebMethod]
+        public List<Car> GetListCar()
+        {
+            return null;
+        }
+
+        // TODO Récupérer les infos d'une voiture (par id)
+        [WebMethod]
+        public Car GetCarById()
+        {
+            return null;
+        }
+
+        // TODO Réserver une voiture (par id)
+        [WebMethod]
+        public string BookCar()
+        {
+            return null;
+        }
+
+        // TODO Récuprer la liste des réservations
+        [WebMethod]
+        public List<Booking> GetListBooking()
+        {
+            return null;
+        }
+
+        // TODO Récuprer la détails d'une réservation (par id)
+        [WebMethod]
+        public Booking GetBookingById()
+        {
+            return null;
+        }
+
+        // TODO Annuler une réservation (par id)
+        [WebMethod]
+        public string CancelBookingById()
+        {
+            return null;
+        }
+
+        #endregion
+
+        #region Method
 
         // TODO Methode de rejeu du token
+
+
+        #endregion
+
     }
 }
