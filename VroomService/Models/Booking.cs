@@ -1,32 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
 namespace VroomService.Models
 {
-    public class Booking
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
+
+    [Table("Booking")]
+    public partial class Booking
     {
-        public int id { get; set; }
-        public DateTime startDate { get; set; }
-        public DateTime endDate { get; set; }
-        private User user { get; set; }
-        private Car car { get; set; }
+        public int Id { get; set; }
 
-        /// <summary>
-        /// Booking constructor
-        /// </summary>
-        /// <param name="startDate"></param>
-        /// <param name="endDate"></param>
-        /// <param name="user"></param>
-        /// <param name="car"></param>
-        public Booking(DateTime startDate, DateTime endDate, User user, Car car)
-        {
-            this.startDate = startDate;
-            this.endDate = endDate;
-            this.user = user;
-            this.car = car;
-        }
+        public DateTime? StartDate { get; set; }
 
+        public DateTime? EndDate { get; set; }
+
+        public int User_Id { get; set; }
+
+        public int Car_Id { get; set; }
+
+        public virtual Car Car { get; set; }
+
+        public virtual User User { get; set; }
     }
 }

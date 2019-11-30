@@ -1,35 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
 namespace VroomService.Models
 {
-    public class Car
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-        public int price { get; set; }
-        public string description { get; set; }
-        public int placeNb { get; set; }
-        public Model model { get; set; }
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
 
-        /// <summary>
-        /// Car constructor
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="price"></param>
-        /// <param name="description"></param>
-        /// <param name="placeNb"></param>
-        /// <param name="model"></param>
-        public Car(string name, int price, string description, int placeNb, Model model)
+    [Table("Car")]
+    public partial class Car
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Car()
         {
-            this.name = name;
-            this.price = price;
-            this.description = description;
-            this.placeNb = placeNb;
-            this.model = model;
+            Bookings = new HashSet<Booking>();
         }
 
+        public int Id { get; set; }
+
+        [StringLength(100)]
+        public string Name { get; set; }
+
+        public int? Price { get; set; }
+
+        [StringLength(500)]
+        public string Description { get; set; }
+
+        public int? PlaceNb { get; set; }
+
+        public int Brand_Id { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Booking> Bookings { get; set; }
+
+        public virtual Brand Brand { get; set; }
     }
 }

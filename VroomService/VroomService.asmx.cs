@@ -17,12 +17,7 @@ namespace VroomService
     // [System.Web.Script.Services.ScriptService]
     public class VroomService : System.Web.Services.WebService
     {
-
-        [WebMethod]
-        public string HelloWorld()
-        {
-            return "Hello World";
-        }
+        VroomServiceModel model = new VroomServiceModel();
 
         #region Service
 
@@ -63,35 +58,35 @@ namespace VroomService
 
         // TODO Récupérer les infos d'une voiture (par id)
         [WebMethod]
-        public Car GetCarById()
+        public Car GetCarById(int id)
         {
             return null;
         }
 
-        // TODO Réserver une voiture (par id)
+        // TODO Réserver une voiture
         [WebMethod]
         public string BookCar()
         {
             return null;
         }
 
-        // TODO Récuprer la liste des réservations
+        // TODO Récuprer la liste des réservations d'un compte
         [WebMethod]
-        public List<Booking> GetListBooking()
+        public List<Booking> GetListBooking(int user_id)
         {
             return null;
         }
 
         // TODO Récuprer la détails d'une réservation (par id)
         [WebMethod]
-        public Booking GetBookingById()
+        public Booking GetBookingById(int id)
         {
             return null;
         }
 
         // TODO Annuler une réservation (par id)
         [WebMethod]
-        public string CancelBookingById()
+        public string CancelBookingById(int id)
         {
             return null;
         }

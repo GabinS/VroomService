@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
 namespace VroomService.Models
 {
-    public class Brand
-    {
-        private int id { get; set; }
-        private string name { get; set; }
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
 
-        /// <summary>
-        /// Brand constructor
-        /// </summary>
-        /// <param name="name"></param>
-        public Brand(string name)
+    [Table("Brand")]
+    public partial class Brand
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Brand()
         {
-            this.name = name;
+            Cars = new HashSet<Car>();
         }
+
+        public int Id { get; set; }
+
+        [StringLength(100)]
+        public string Name { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Car> Cars { get; set; }
     }
 }
