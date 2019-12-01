@@ -12,7 +12,7 @@ namespace VroomService.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Brand()
         {
-            Cars = new HashSet<Car>();
+            Cars = new List<Car>();
         }
 
         public int Id { get; set; }
@@ -21,6 +21,6 @@ namespace VroomService.Models
         public string Name { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Car> Cars { get; set; }
+        public virtual List<Car> Cars { get; set; }
     }
 }

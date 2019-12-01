@@ -12,7 +12,7 @@ namespace VroomService.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public User()
         {
-            Bookings = new HashSet<Booking>();
+            Bookings = new List<Booking>();
         }
 
         public int Id { get; set; }
@@ -35,6 +35,6 @@ namespace VroomService.Models
         public string Lastname { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Booking> Bookings { get; set; }
+        public virtual List<Booking> Bookings { get; set; }
     }
 }

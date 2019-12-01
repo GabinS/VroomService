@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Web;
+using System.Web.Caching;
 using System.Web.Services;
+using System.Web.Services.Protocols;
+using System.Xml;
+using System.Xml.Serialization;
 using VroomService.Models;
 
 namespace VroomService
@@ -17,25 +23,69 @@ namespace VroomService
     // [System.Web.Script.Services.ScriptService]
     public class VroomService : System.Web.Services.WebService
     {
-        VroomServiceModel model = new VroomServiceModel();
+        /// <summary>
+        /// Connection BDD
+        /// </summary>
+        VroomServiceModel db = new VroomServiceModel();
+
+        /// <summary>
+        /// Utilisateur connecté
+        /// </summary>
+        User user;
+
+        // Receive all SOAP headers besides the MyHeader SOAP header.
+        public SoapUnknownHeader[] unknownHeaders;
+
+        [WebMethod]
+        public string HelloWorld()
+        {
+            return "Hello World";
+        }
 
         #region Service
 
         // TODO Connexion (enregistrement du token)
         [WebMethod]
-        public string Authentication()
+        [SoapHeader("unknownHeaders", Required = false)]
+        public string Authentication(string username, string password)
         {
-            return null;
-        }
-        
-        // TODO Inscription
-        [WebMethod]
-        public string Registration()
-        {
-            return null;
+            try
+            {
+                this.user = db.Users.Where(u => u.Username == username && u.Password == password).FirstOrDefault();
+                this.user.Token = GenerateToken();
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return $"Erreur d'enregistrement : {ex.ToString()}";
+            }
+
+            return this.user.ToString();
         }
 
-        // TODO Modifier un compte client
+        // TODO Inscription
+        [WebMethod]
+        [SoapHeader("unknownHeaders", Required = false)]
+        public string Registration(string username, string password)
+        {
+            try
+            {
+                this.user = new User();
+                this.user.Username = username;
+                this.user.Password = password;
+                this.user.Token = GenerateToken();
+                db.Users.Add(this.user);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return $"Erreur d'enregistrement : {ex.ToString()}";
+            }
+
+            return "Enregistrement réussi";
+        }
+
+        // TODO Modifier un compte client (par id)
         [WebMethod]
         public string EditAccount()
         {
@@ -44,9 +94,11 @@ namespace VroomService
 
         // TODO Récupérer les infos d'un compte (par id)
         [WebMethod]
-        public User GetAccount()
+        [return: XmlElement("User", typeof(User))]
+        public User GetAccount(int id)
         {
-            return null;
+            User _user = db.Users.Where(u => u.Id == id).FirstOrDefault();
+            return _user;
         }
 
         // TODO Récupérer la liste des voitures disponible
@@ -96,7 +148,63 @@ namespace VroomService
         #region Method
 
         // TODO Methode de rejeu du token
+        private string GenerateToken()
+        {
+            string token = Guid.NewGuid().ToString();
+            HttpRuntime.Cache.Add(
+                token,
+                this.user.Username,
+                null,
+                Cache.NoAbsoluteExpiration,
+                TimeSpan.FromMinutes(30),
+                CacheItemPriority.NotRemovable,
+                null
+                );
+            return token;
+        }
 
+        private bool CheckToken()
+        {
+            if (this.user != null && !string.IsNullOrEmpty(this.user.Token))
+                return HttpRuntime.Cache[this.user.Token] != null;
+            return false;
+        }
+
+        private string Hashpassword(string password)
+        {
+            if (string.IsNullOrEmpty(password)) return null;
+            if (password.Length < 1) return null;
+
+            byte[] salt = new byte[20];
+            byte[] key = new byte[20];
+            byte[] ret = new byte[40];
+
+            try
+            {
+                using (RNGCryptoServiceProvider randomBytes = new RNGCryptoServiceProvider())
+                {
+                    randomBytes.GetBytes(salt);
+
+                    using (var hashBytes = new Rfc2898DeriveBytes(password, salt, 10000))
+                    {
+                        key = hashBytes.GetBytes(20);
+                        Buffer.BlockCopy(salt, 0, ret, 0, 20);
+                        Buffer.BlockCopy(key, 0, ret, 20, 20);
+                    }
+                }
+                // returns salt/key pair
+                return Convert.ToBase64String(ret);
+            }
+            finally
+            {
+                if (salt != null)
+                    Array.Clear(salt, 0, salt.Length);
+                if (key != null)
+                    Array.Clear(key, 0, key.Length);
+                if (ret != null)
+                    Array.Clear(ret, 0, ret.Length);
+            }
+        }
 
         #endregion
 
