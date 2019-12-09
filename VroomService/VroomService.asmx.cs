@@ -72,7 +72,7 @@ namespace VroomService
             {
                 this.user = new User();
                 this.user.Username = username;
-                this.user.Password = password;
+                this.user.Password = Hashpassword(password);
                 this.user.Token = GenerateToken();
                 db.Users.Add(this.user);
                 db.SaveChanges();
@@ -105,25 +105,26 @@ namespace VroomService
         [WebMethod]
         public List<Car> GetListCar()
         {
-            return db.Cars;
+            return db.Cars.ToList();
         }
 
         // Récupérer les infos d'une voiture (par id)
         [WebMethod]
         public Car GetCarById(int id)
         {
-            return db.Cars.Where(b => b.id == id).FirstOrDefault();
+            return db.Cars.Where(b => b.Id == id).FirstOrDefault();
         }
 
         // TODO Réserver une voiture
         [WebMethod]
-        public string BookCar(startdate date, enddate date, int carid, int userid)
+        public string BookCar(DateTime startdate, DateTime enddate , int carid, int userid)
         {
             try
             {
                 Booking booking = new Booking();
                 booking.StartDate = startdate;
                 booking.EndDate = enddate;
+                booking.State = "En cours";
                 booking.Car = GetCarById(carid);
                 booking.User = GetAccount(userid);
 
@@ -141,22 +142,22 @@ namespace VroomService
         [WebMethod]
         public List<Booking> GetListBooking(int user_id)
         {
-            return db.Bookings.Where(b => b.User_Id == user_id);
+            return db.Bookings.Where(b => b.User_Id == user_id).ToList();
         }
 
         // Récuprer la détails d'une réservation (par id)
         [WebMethod]
         public Booking GetBookingById(int id)
         {
-            return db.Bookings.Where(b => b.id == id).FirstOrDefault();
+            return db.Bookings.Where(b => b.Id == id).FirstOrDefault();
         }
 
         // Annuler une réservation (par id)
         [WebMethod]
         public string CancelBookingById(int id)
         {
-            Booking booking = GetBookinById(id);
-            booking.statut = "Annulé"; // changer le statut de la réservation = annulé.
+            Booking booking = db.Bookings.Where(b => b.Id == id).FirstOrDefault();
+            booking.State = "Annulé"; // changer le statut de la réservation = annulé.
 
             db.SaveChanges();
 

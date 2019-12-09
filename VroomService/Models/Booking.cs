@@ -15,6 +15,8 @@ namespace VroomService.Models
 
         public DateTime? EndDate { get; set; }
 
+        public string State { get; set; }
+
         public int User_Id { get; set; }
 
         public int Car_Id { get; set; }
