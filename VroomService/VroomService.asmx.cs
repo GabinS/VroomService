@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Soap;
 using System.Security.Cryptography;
+using System.Text;
 using System.Web;
 using System.Web.Caching;
 using System.Web.Services;
@@ -36,15 +38,9 @@ namespace VroomService
         // Receive all SOAP headers besides the MyHeader SOAP header.
         public SoapUnknownHeader[] unknownHeaders;
 
-        [WebMethod]
-        public string HelloWorld()
-        {
-            return "Hello World";
-        }
-
         #region Service
 
-        // TODO Connexion (enregistrement du token)
+        // Connexion (enregistrement du token)
         [WebMethod]
         [SoapHeader("unknownHeaders", Required = false)]
         public string Authentication(string username, string password)
@@ -63,7 +59,7 @@ namespace VroomService
             return this.user.ToString();
         }
 
-        // TODO Inscription
+        // Inscription
         [WebMethod]
         [SoapHeader("unknownHeaders", Required = false)]
         public string Registration(string username, string password)
@@ -85,23 +81,22 @@ namespace VroomService
             return "Enregistrement réussi";
         }
 
-        // TODO Modifier un compte client (par id)
+        // Modifier un compte client (par id)
         [WebMethod]
         public string EditAccount()
         {
             return null;
         }
 
-        // TODO Récupérer les infos d'un compte (par id)
+        // Récupérer les infos d'un compte (par id)
         [WebMethod]
         [return: XmlElement("User", typeof(User))]
         public User GetAccount(int id)
         {
-            User _user = db.Users.Where(u => u.Id == id).FirstOrDefault();
-            return _user;
+            return db.Users.FirstOrDefault(u => u.Id == id);
         }
 
-        // TODO Récupérer la liste des voitures disponible
+        // Récupérer la liste des voitures disponible
         [WebMethod]
         public List<Car> GetListCar()
         {
@@ -112,12 +107,12 @@ namespace VroomService
         [WebMethod]
         public Car GetCarById(int id)
         {
-            return db.Cars.Where(b => b.Id == id).FirstOrDefault();
+            return db.Cars.Include("Brand").FirstOrDefault(c => c.Id == id);
         }
-
-        // TODO Réserver une voiture
+        
+        // Réserver une voiture
         [WebMethod]
-        public string BookCar(DateTime startdate, DateTime enddate , int carid, int userid)
+        public string BookCar(DateTime startdate, DateTime enddate , int car_id, int user_id)
         {
             try
             {
@@ -125,8 +120,8 @@ namespace VroomService
                 booking.StartDate = startdate;
                 booking.EndDate = enddate;
                 booking.State = "En cours";
-                booking.Car = GetCarById(carid);
-                booking.User = GetAccount(userid);
+                booking.Car = db.Cars.FirstOrDefault(b => b.Id == car_id);
+                booking.User = GetAccount(user_id);
 
                 db.Bookings.Add(booking);
                 db.SaveChanges();
@@ -142,14 +137,14 @@ namespace VroomService
         [WebMethod]
         public List<Booking> GetListBooking(int user_id)
         {
-            return db.Bookings.Where(b => b.User_Id == user_id).ToList();
+            return db.Bookings.Include("Car").Include("User").Where(b => b.User_Id == user_id).ToList();
         }
 
         // Récuprer la détails d'une réservation (par id)
         [WebMethod]
         public Booking GetBookingById(int id)
         {
-            return db.Bookings.Where(b => b.Id == id).FirstOrDefault();
+            return db.Bookings.Include("Car").Include("User").FirstOrDefault(b => b.Id == id);
         }
 
         // Annuler une réservation (par id)
