@@ -26,7 +26,7 @@ namespace VroomService
     public class VroomService : System.Web.Services.WebService
     {
         /// <summary>
-        /// Connection BDD
+        /// Connection à la base de données.
         /// </summary>
         VroomServiceModel db = new VroomServiceModel();
 
@@ -81,11 +81,36 @@ namespace VroomService
             return "Enregistrement réussi";
         }
 
-        // Modifier un compte client (par id)
+        /// <summary>
+        /// Modification d'un compte utilisateur existant.
+        /// </summary>
+        /// <param name="userId">Numéro d'identification de l'utilisateur.</param>
+        /// <param name="userName">Pseudonyme de l'utilisateur.</param>
+        /// <param name="password">Mot de passe de l'utilisateur.</param>
+        /// <param name="firstName">Prénom de l'utilisateur.</param>
+        /// <param name="lastName">Nom de famille de l'utilisateur</param>
+        /// <param name="password">Mot de passe de l'utilisateur.</param>
+        /// <returns></returns>
         [WebMethod]
-        public string EditAccount()
+        public string EditAccount(int userId, string userName, string firstName, string lastName, string password)
         {
-            return null;
+            try
+            {
+                User user = db.Users.Where(u => u.Id == userId).FirstOrDefault();
+
+                user.Username = userName;
+                user.Password = password;
+                user.Firstname = firstName;
+                user.Lastname = lastName;
+
+                db.SaveChanges();
+                return "Modification enregistrée";
+            }
+            catch (Exception)
+            {
+                return "La modification du compte a échoué.";
+            }
+
         }
 
         // Récupérer les infos d'un compte (par id)
@@ -137,6 +162,20 @@ namespace VroomService
         [WebMethod]
         public List<Booking> GetListBooking(int user_id)
         {
+            // Date du jour.
+            DateTime dateJour = DateTime.Now;
+
+            // Liste les réservations en cours de l'utilisateur.
+            // si date du jour et si date inférieure (et heure).
+            List<Booking> bookings = db.Bookings.Where(b => b.State == "En cours" && (b.EndDate == dateJour || b.EndDate < dateJour) && b.User_Id == user_id).ToList();
+
+            foreach (Booking book in bookings)
+            {
+                book.State = "Terminé";              
+            }
+
+            db.SaveChanges();
+
             return db.Bookings.Include("Car").Include("User").Where(b => b.User_Id == user_id).ToList();
         }
 
