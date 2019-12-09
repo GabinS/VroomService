@@ -108,11 +108,11 @@ namespace VroomService
             return null;
         }
 
-        // TODO Récupérer les infos d'une voiture (par id)
+        // Récupérer les infos d'une voiture (par id)
         [WebMethod]
         public Car GetCarById(int id)
         {
-            return null;
+            return db.Cars.Where(b => b.id == id).FirstOrDefault();
         }
 
         // TODO Réserver une voiture
@@ -126,21 +126,27 @@ namespace VroomService
         [WebMethod]
         public List<Booking> GetListBooking(int user_id)
         {
+
             return null;
         }
 
-        // TODO Récuprer la détails d'une réservation (par id)
+        // Récuprer la détails d'une réservation (par id)
         [WebMethod]
         public Booking GetBookingById(int id)
         {
-            return null;
+            return db.Bookings.Where(b => b.id == id).FirstOrDefault();
         }
 
-        // TODO Annuler une réservation (par id)
+        // Annuler une réservation (par id)
         [WebMethod]
         public string CancelBookingById(int id)
         {
-            return null;
+            Booking booking = GetBookinById(id);
+            booking.statut = "Annulé"; // changer le statut de la réservation = annulé.
+
+            db.SaveChanges();
+
+            return "Réservation annulée";
         }
 
         #endregion
