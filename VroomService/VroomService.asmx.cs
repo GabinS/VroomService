@@ -37,26 +37,33 @@ namespace VroomService
 
         // Receive all SOAP headers besides the MyHeader SOAP header.
         public SoapUnknownHeader[] unknownHeaders;
-
+        
         #region Service
 
         // Connexion (enregistrement du token)
         [WebMethod]
-        [SoapHeader("unknownHeaders", Required = false)]
         public string Authentication(string username, string password)
         {
             try
             {
-                this.user = db.Users.Where(u => u.Username == username && u.Password == password).FirstOrDefault();
-                this.user.Token = GenerateToken();
+                password = EncodePassword(password);
+
+                this.user = db.Users.FirstOrDefault(u => u.Username.Equals(username) && u.Password.Equals(password));
+                if (user == null)
+                {
+                    return "Identifiants incorectent";
+                }
+                string token = GenerateToken();
+                this.user.Token = token;
                 db.SaveChanges();
             }
             catch (Exception ex)
             {
-                return $"Erreur d'enregistrement : {ex.ToString()}";
+                return $"Erreur de connexion : {ex.ToString()}";
             }
 
-            return this.user.ToString();
+            return "Connexion réussi";
+
         }
 
         // Inscription
@@ -66,10 +73,14 @@ namespace VroomService
         {
             try
             {
+                string token = GenerateToken();
+
                 this.user = new User();
                 this.user.Username = username;
-                this.user.Password = Hashpassword(password);
-                this.user.Token = GenerateToken();
+                this.user.Password = EncodePassword(password);
+                this.user.Token = token;
+                registerTokenCache(token);
+
                 db.Users.Add(this.user);
                 db.SaveChanges();
             }
@@ -96,7 +107,7 @@ namespace VroomService
         {
             try
             {
-                User user = db.Users.Where(u => u.Id == userId).FirstOrDefault();
+                User user = db.Users.FirstOrDefault(u => u.Id == userId);
 
                 user.Username = userName;
                 user.Password = password;
@@ -125,7 +136,7 @@ namespace VroomService
         [WebMethod]
         public List<Car> GetListCar()
         {
-            return db.Cars.ToList();
+            return db.Cars.Include("Brand").ToList();
         }
 
         // Récupérer les infos d'une voiture (par id)
@@ -158,7 +169,7 @@ namespace VroomService
             return "Réservation réussie";
         }
 
-        // TODO Récuprer la liste des réservations d'un compte
+        // Récuprer la liste des réservations d'un compte
         [WebMethod]
         public List<Booking> GetListBooking(int user_id)
         {
@@ -171,7 +182,7 @@ namespace VroomService
 
             foreach (Booking book in bookings)
             {
-                book.State = "Terminé";              
+                book.State = "Terminé";
             }
 
             db.SaveChanges();
@@ -190,7 +201,7 @@ namespace VroomService
         [WebMethod]
         public string CancelBookingById(int id)
         {
-            Booking booking = db.Bookings.Where(b => b.Id == id).FirstOrDefault();
+            Booking booking = db.Bookings.FirstOrDefault(b => b.Id == id && b.State == "En cours");
             booking.State = "Annulé"; // changer le statut de la réservation = annulé.
 
             db.SaveChanges();
@@ -209,6 +220,16 @@ namespace VroomService
         private string GenerateToken()
         {
             string token = Guid.NewGuid().ToString();
+            registerTokenCache(token);
+            return token;
+        }
+
+        /// <summary>
+        /// Enregistre le token dans le cache serveur
+        /// </summary>
+        /// <param name="token"></param>
+        private void registerTokenCache(string token)
+        {
             HttpRuntime.Cache.Add(
                 token,
                 this.user.Username,
@@ -217,9 +238,9 @@ namespace VroomService
                 TimeSpan.FromMinutes(30),
                 CacheItemPriority.NotRemovable,
                 null
-                );
-            return token;
+            );
         }
+
 
         /// <summary>
         /// Vérifie que le token passé est le même que celui en cache
@@ -233,44 +254,15 @@ namespace VroomService
         }
 
         /// <summary>
-        /// Hachage d'un mot de passe donné
+        /// Encode un mot de passe donné
         /// </summary>
         /// <param name="password"></param>
-        /// <returns>Mot de passe haché</returns>
-        private string Hashpassword(string password)
+        /// <returns></returns>
+        public static string EncodePassword(string password)
         {
-            if (string.IsNullOrEmpty(password)) return null;
-            if (password.Length < 1) return null;
-
-            byte[] salt = new byte[20];
-            byte[] key = new byte[20];
-            byte[] ret = new byte[40];
-
-            try
-            {
-                using (RNGCryptoServiceProvider randomBytes = new RNGCryptoServiceProvider())
-                {
-                    randomBytes.GetBytes(salt);
-
-                    using (var hashBytes = new Rfc2898DeriveBytes(password, salt, 10000))
-                    {
-                        key = hashBytes.GetBytes(20);
-                        Buffer.BlockCopy(salt, 0, ret, 0, 20);
-                        Buffer.BlockCopy(key, 0, ret, 20, 20);
-                    }
-                }
-                // returns salt/key pair
-                return Convert.ToBase64String(ret);
-            }
-            finally
-            {
-                if (salt != null)
-                    Array.Clear(salt, 0, salt.Length);
-                if (key != null)
-                    Array.Clear(key, 0, key.Length);
-                if (ret != null)
-                    Array.Clear(ret, 0, ret.Length);
-            }
+            byte[] bytes = Encoding.Unicode.GetBytes(password);
+            byte[] inArray = HashAlgorithm.Create("SHA1").ComputeHash(bytes);
+            return Convert.ToBase64String(inArray);
         }
 
         #endregion
