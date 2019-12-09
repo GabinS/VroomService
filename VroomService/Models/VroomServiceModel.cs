@@ -10,8 +10,9 @@ namespace VroomService.Models
         public VroomServiceModel()
             : base("name=VroomServiceModel")
         {
+            this.Configuration.ProxyCreationEnabled = false;
         }
-
+               
         public virtual DbSet<Booking> Bookings { get; set; }
         public virtual DbSet<Brand> Brands { get; set; }
         public virtual DbSet<Car> Cars { get; set; }

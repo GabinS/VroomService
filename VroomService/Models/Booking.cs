@@ -5,8 +5,10 @@ namespace VroomService.Models
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
+    using System.Xml.Serialization;
 
     [Table("Booking")]
+    [Serializable]
     public partial class Booking
     {
         public int Id { get; set; }
@@ -17,8 +19,10 @@ namespace VroomService.Models
 
         public string State { get; set; }
 
+        [XmlIgnore]
         public int User_Id { get; set; }
 
+        [XmlIgnore]
         public int Car_Id { get; set; }
 
         public virtual Car Car { get; set; }
