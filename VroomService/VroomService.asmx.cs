@@ -105,7 +105,7 @@ namespace VroomService
         [WebMethod]
         public List<Car> GetListCar()
         {
-            return null;
+            return db.Cars;
         }
 
         // Récupérer les infos d'une voiture (par id)
@@ -117,17 +117,31 @@ namespace VroomService
 
         // TODO Réserver une voiture
         [WebMethod]
-        public string BookCar()
+        public string BookCar(startdate date, enddate date, int carid, int userid)
         {
-            return null;
+            try
+            {
+                Booking booking = new Booking();
+                booking.StartDate = startdate;
+                booking.EndDate = enddate;
+                booking.Car = GetCarById(carid);
+                booking.User = GetAccount(userid);
+
+                db.Bookings.Add(booking);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return "Erreur lors de la réservation";
+            }
+            return "Réservation réussie";
         }
 
         // TODO Récuprer la liste des réservations d'un compte
         [WebMethod]
         public List<Booking> GetListBooking(int user_id)
         {
-
-            return null;
+            return db.Bookings.Where(b => b.User_Id == user_id);
         }
 
         // Récuprer la détails d'une réservation (par id)
@@ -153,7 +167,10 @@ namespace VroomService
 
         #region Method
 
-        // TODO Methode de rejeu du token
+        /// <summary>
+        /// Génère un token
+        /// </summary>
+        /// <returns>Token</returns>
         private string GenerateToken()
         {
             string token = Guid.NewGuid().ToString();
@@ -169,6 +186,10 @@ namespace VroomService
             return token;
         }
 
+        /// <summary>
+        /// Vérifie que le token passé est le même que celui en cache
+        /// </summary>
+        /// <returns></returns>
         private bool CheckToken()
         {
             if (this.user != null && !string.IsNullOrEmpty(this.user.Token))
@@ -176,6 +197,11 @@ namespace VroomService
             return false;
         }
 
+        /// <summary>
+        /// Hachage d'un mot de passe donné
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns>Mot de passe haché</returns>
         private string Hashpassword(string password)
         {
             if (string.IsNullOrEmpty(password)) return null;
