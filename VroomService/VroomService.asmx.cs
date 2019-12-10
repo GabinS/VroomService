@@ -21,6 +21,7 @@ namespace VroomService
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
+
     // Pour autoriser l'appel de ce service Web depuis un script à l'aide d'ASP.NET AJAX, supprimez les marques de commentaire de la ligne suivante. 
     // [System.Web.Script.Services.ScriptService]
     public class VroomService : System.Web.Services.WebService
@@ -40,7 +41,12 @@ namespace VroomService
         
         #region Service
 
-        // Connexion (enregistrement du token)
+        /// <summary>
+        /// Enregistrement du token lors de la connexion.
+        /// </summary>
+        /// <param name="username">Pseudonyme de l'utilisateur.</param>
+        /// <param name="password">Mot de passe de l'utilisateur.</param>
+        /// <returns></returns>
         [WebMethod]
         public string Authentication(string username, string password)
         {
@@ -51,7 +57,7 @@ namespace VroomService
                 this.user = db.Users.FirstOrDefault(u => u.Username.Equals(username) && u.Password.Equals(password));
                 if (user == null)
                 {
-                    return "Identifiants incorectent";
+                    return "Identifiants incorrects";
                 }
                 string token = GenerateToken();
                 this.user.Token = token;
@@ -62,11 +68,16 @@ namespace VroomService
                 return $"Erreur de connexion : {ex.ToString()}";
             }
 
-            return "Connexion réussi";
+            return "Connexion réussie";
 
         }
 
-        // Inscription
+        /// <summary>
+        /// Inscription d'un utilisateur.
+        /// </summary>
+        /// <param name="username">Pseudonyme de l'utilisateur.</param>
+        /// <param name="password">Mot de passe de l'utilisateur.</param>
+        /// <returns></returns>
         [WebMethod]
         [SoapHeader("unknownHeaders", Required = false)]
         public string Registration(string username, string password)
@@ -97,7 +108,6 @@ namespace VroomService
         /// </summary>
         /// <param name="userId">Numéro d'identification de l'utilisateur.</param>
         /// <param name="userName">Pseudonyme de l'utilisateur.</param>
-        /// <param name="password">Mot de passe de l'utilisateur.</param>
         /// <param name="firstName">Prénom de l'utilisateur.</param>
         /// <param name="lastName">Nom de famille de l'utilisateur</param>
         /// <param name="password">Mot de passe de l'utilisateur.</param>
@@ -117,14 +127,18 @@ namespace VroomService
                 db.SaveChanges();
                 return "Modification enregistrée";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return "La modification du compte a échoué.";
+                return $"Erreur de modification du compte : {ex.ToString()}";
             }
 
         }
 
-        // Récupérer les infos d'un compte (par id)
+        /// <summary>
+        /// Récupère les informations d'un compte utilisateur.
+        /// </summary>
+        /// <param name="id">Numéro d'identification de l'utilisateur.</param>
+        /// <returns>L'utilisateur</returns>
         [WebMethod]
         [return: XmlElement("User", typeof(User))]
         public User GetAccount(int id)
@@ -132,21 +146,35 @@ namespace VroomService
             return db.Users.FirstOrDefault(u => u.Id == id);
         }
 
-        // Récupérer la liste des voitures disponible
+        /// <summary>
+        /// Récupère la liste des voitures disponibles.
+        /// </summary>
+        /// <returns>La liste des véhicules.</returns>
         [WebMethod]
         public List<Car> GetListCar()
         {
             return db.Cars.Include("Brand").ToList();
         }
 
-        // Récupérer les infos d'une voiture (par id)
+        /// <summary>
+        /// Récupère les informations pour une voiture.
+        /// </summary>
+        /// <param name="id">Numéro d'identification de la voiture.</param>
+        /// <returns>La voiture</returns>
         [WebMethod]
         public Car GetCarById(int id)
         {
             return db.Cars.Include("Brand").FirstOrDefault(c => c.Id == id);
         }
         
-        // Réserver une voiture
+        /// <summary>
+        /// Réservation d'un voiture pour un utilisateur.
+        /// </summary>
+        /// <param name="startdate">Date de retrait de la voiture.</param>
+        /// <param name="enddate">Date de retour de la voiture.</param>
+        /// <param name="car_id">Numéro d'identification de la voiture.</param>
+        /// <param name="user_id">Numéro d'identification de l'utilisateur.</param>
+        /// <returns></returns>
         [WebMethod]
         public string BookCar(DateTime startdate, DateTime enddate , int car_id, int user_id)
         {
@@ -164,20 +192,23 @@ namespace VroomService
             }
             catch (Exception ex)
             {
-                return "Erreur lors de la réservation";
+                return $"Erreur lors de la réservation de la voiture : {ex.ToString()}";
             }
             return "Réservation réussie";
         }
 
-        // Récuprer la liste des réservations d'un compte
+        /// <summary>
+        /// Récupère la liste des réservations pour un utilisateur.
+        /// </summary>
+        /// <param name="user_id">Numéro d'identification de l'utilisateur.</param>
+        /// <returns></returns>
         [WebMethod]
         public List<Booking> GetListBooking(int user_id)
         {
             // Date du jour.
             DateTime dateJour = DateTime.Now;
 
-            // Liste les réservations en cours de l'utilisateur.
-            // si date du jour et si date inférieure (et heure).
+            // Liste les réservations en cours pour l'utilisateur.
             List<Booking> bookings = db.Bookings.Where(b => b.State == "En cours" && (b.EndDate == dateJour || b.EndDate < dateJour) && b.User_Id == user_id).ToList();
 
             foreach (Booking book in bookings)
@@ -190,19 +221,27 @@ namespace VroomService
             return db.Bookings.Include("Car").Include("User").Where(b => b.User_Id == user_id).ToList();
         }
 
-        // Récuprer la détails d'une réservation (par id)
+        /// <summary>
+        /// Récupère les détails d'une réservation.
+        /// </summary>
+        /// <param name="id">Numéro d'identification de la réservation.</param>
+        /// <returns>Les informations d'un réservation.</returns>
         [WebMethod]
         public Booking GetBookingById(int id)
         {
             return db.Bookings.Include("Car").Include("User").FirstOrDefault(b => b.Id == id);
         }
 
-        // Annuler une réservation (par id)
+        /// <summary>
+        /// Annule une réservation en cours.
+        /// </summary>
+        /// <param name="id">Numéro d'identification de la réservation.</param>
+        /// <returns></returns>
         [WebMethod]
         public string CancelBookingById(int id)
         {
             Booking booking = db.Bookings.FirstOrDefault(b => b.Id == id && b.State == "En cours");
-            booking.State = "Annulé"; // changer le statut de la réservation = annulé.
+            booking.State = "Annulé";
 
             db.SaveChanges();
 
@@ -227,7 +266,7 @@ namespace VroomService
         /// <summary>
         /// Enregistre le token dans le cache serveur
         /// </summary>
-        /// <param name="token"></param>
+        /// <param name="token">Token</param>
         private void registerTokenCache(string token)
         {
             HttpRuntime.Cache.Add(
