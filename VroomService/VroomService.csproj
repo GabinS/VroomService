@@ -42,6 +42,19 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <IncludeIisSettings>false</IncludeIisSettings>
+    <LegacyPublishPropertiesPageEnabled>true</LegacyPublishPropertiesPageEnabled>
+    <PublishDatabaseSettings>
+      <Objects>
+        <ObjectGroup Name="VroomServiceModel-Déploiement" Order="1">
+          <Destination Path="Data Source=.\SQLEXPRESS%3bInitial Catalog=VroomServiceDb%3bPersist Security Info=True%3bUser ID=sa%3bPassword=Not24get" />
+          <Object Type="DbFullSql" Enabled="False">
+            <PreSource Path="data source=.\SQLEXPRESS%3binitial catalog=VroomServiceDb%3bintegrated security=SSPI%3bUser ID=sa%3b Password=Not24get%3bMultipleActiveResultSets=True%3bApp=EntityFramework" ScriptSchema="True" ScriptData="False" CopyAllFullTextCatalogs="False" DriDefaults="True" />
+            <Source Path="obj\Release\AutoScripts\VroomServiceModel-Déploiement_SchemaOnly.sql" Transacted="True" />
+          </Object>
+        </ObjectGroup>
+      </Objects>
+    </PublishDatabaseSettings>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -93,6 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\VroomService.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
