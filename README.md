@@ -12,7 +12,7 @@ Pour accéder au web service, il faut se relier au réseau de l'Institut d'Infor
 
 Vous arrivez sur la page d'accueil du service web. Pour accéder au service de réservation de voitures, il faudra cliquer sur ***Vroom Service***.
 
-On vous demandera de vous identifier avec un pseudonyme et un mot de passe.
+On vous demandera de vous identifier avec un pseudonyme et un mot de passe (PS :le système d'identification n'est pas encore disponible).
 
 ## II. Méthodes
 
@@ -73,6 +73,7 @@ Fonction qui retourne le résultat de l'enregistrement sous la forme d'une chaî
 ### E. EditAccount
 
 Fonction qui modifie le compte d'un utilisateur. Plusieurs données seront attendues pour modifier les données existants d'un utilisateur : un **numéro d'identification**, un **pseudonyme**, un **prénom**, un **nom** et un **mot de passe**.
+
 | Nom      | Type | Description |
 | ----------- | ----------- | ----------- |
 | userId | int | Numéro d'identification l'utilisateur |
