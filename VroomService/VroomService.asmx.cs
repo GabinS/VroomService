@@ -166,7 +166,18 @@ namespace VroomService
         {
             return db.Cars.Include("Brand").FirstOrDefault(c => c.Id == id);
         }
-        
+
+        /// <summary>
+        /// Récupère le numéro d'identification de l'utilisateur.
+        /// </summary>
+        /// <param name="id">Numéro d'identification de l'utilisateur</param>
+        /// <returns>L'utilisateur</returns>
+        [WebMethod]
+        public User GetUserById(int id)
+        {
+            return db.Users.FirstOrDefault(c => c.Id == id);
+        }
+
         /// <summary>
         /// Réservation d'un voiture pour un utilisateur.
         /// </summary>
