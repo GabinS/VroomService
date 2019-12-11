@@ -52,11 +52,13 @@ Fonction utilisée lors de la connexion de l'utilisateur. Deux chaînes de carac
 Fonction qui retourne le résultat de l'authentification sous la forme d'une chaîne de caractère.
 
 ### C. Registration 
-Fonction qui enregistre la connexion de l'utilisateur. Deux chaînes de caractère seront nécessaires pour permettre à l'utilisateur d'accèder au service web : un **pseudonyme** et un **mot de passe**. 
+Fonction qui enregistre la création de l'utilisateur. Deux chaînes de caractère seront nécessaires pour permettre à l'utilisateur d'accèder au service web : un **pseudonyme**, un **mot de passe**, un **prénom** et un **nom de famille**. 
 | Nom      | Type | Description |
 | ----------- | ----------- | ----------- |
 | username | string | Pseudonyme de l'utilisateur |
 | password | string | Mot de passe de l'utilisateur |
+| firstname | string | Prénom de l'utilisateur |
+| lastname | string | Nom de famille de l'utilisateur |
 
 ### D. RegistrationResponse
 Fonction qui retourne le résultat de l'enregistrement sous la forme d'une chaîne de caractère. 
