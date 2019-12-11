@@ -8,7 +8,6 @@ namespace VroomService.Models
     using System.Xml.Serialization;
 
     [Table("Booking")]
-    [Serializable]
     public partial class Booking
     {
         public int Id { get; set; }

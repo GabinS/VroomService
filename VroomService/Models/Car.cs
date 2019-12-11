@@ -7,7 +7,6 @@ namespace VroomService.Models
     using System.Xml.Serialization;
 
     [Table("Car")]
-    [Serializable]
     public partial class Car
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]

@@ -8,7 +8,6 @@ namespace VroomService.Models
     using System.Xml.Serialization;
 
     [Table("Brand")]
-    [Serializable]
     public partial class Brand
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]

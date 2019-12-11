@@ -38,8 +38,10 @@ namespace VroomService
 
         // Receive all SOAP headers besides the MyHeader SOAP header.
         public SoapUnknownHeader[] unknownHeaders;
-        
+
         #region Service
+
+        #region User
 
         /// <summary>
         /// Enregistrement du token lors de la connexion.
@@ -77,10 +79,12 @@ namespace VroomService
         /// </summary>
         /// <param name="username">Pseudonyme de l'utilisateur.</param>
         /// <param name="password">Mot de passe de l'utilisateur.</param>
+        /// <param name="firstname">Prénom de l'utilisateur.</param>
+        /// <param name="lastname">Nom de famille de l'utilisateur</param>
         /// <returns></returns>
         [WebMethod]
         [SoapHeader("unknownHeaders", Required = false)]
-        public string Registration(string username, string password)
+        public string Registration(string username, string password, string firstname, string lastname)
         {
             try
             {
@@ -89,6 +93,8 @@ namespace VroomService
                 this.user = new User();
                 this.user.Username = username;
                 this.user.Password = EncodePassword(password);
+                this.user.Firstname = firstname;
+                this.user.Lastname = lastname;
                 this.user.Token = token;
                 registerTokenCache(token);
 
@@ -107,22 +113,22 @@ namespace VroomService
         /// Modification d'un compte utilisateur existant.
         /// </summary>
         /// <param name="userId">Numéro d'identification de l'utilisateur.</param>
-        /// <param name="userName">Pseudonyme de l'utilisateur.</param>
-        /// <param name="firstName">Prénom de l'utilisateur.</param>
-        /// <param name="lastName">Nom de famille de l'utilisateur</param>
+        /// <param name="username">Pseudonyme de l'utilisateur.</param>
+        /// <param name="firstname">Prénom de l'utilisateur.</param>
+        /// <param name="lastname">Nom de famille de l'utilisateur</param>
         /// <param name="password">Mot de passe de l'utilisateur.</param>
         /// <returns></returns>
         [WebMethod]
-        public string EditAccount(int userId, string userName, string firstName, string lastName, string password)
+        public string EditAccount(int userId, string username, string firstname, string lastname, string password)
         {
             try
             {
                 User user = db.Users.FirstOrDefault(u => u.Id == userId);
 
-                user.Username = userName;
+                user.Username = username;
                 user.Password = password;
-                user.Firstname = firstName;
-                user.Lastname = lastName;
+                user.Firstname = firstname;
+                user.Lastname = lastname;
 
                 db.SaveChanges();
                 return "Modification enregistrée";
@@ -140,14 +146,17 @@ namespace VroomService
         /// <param name="id">Numéro d'identification de l'utilisateur.</param>
         /// <returns>L'utilisateur</returns>
         [WebMethod]
-        [return: XmlElement("User", typeof(User))]
         public User GetAccount(int id)
         {
             return db.Users.FirstOrDefault(u => u.Id == id);
         }
 
+        #endregion
+
+        #region Cars
+
         /// <summary>
-        /// Récupère la liste des voitures disponibles.
+        /// Récupère la liste des voitures.
         /// </summary>
         /// <returns>La liste des véhicules.</returns>
         [WebMethod]
@@ -187,7 +196,29 @@ namespace VroomService
         /// <param name="user_id">Numéro d'identification de l'utilisateur.</param>
         /// <returns></returns>
         [WebMethod]
-        public string BookCar(DateTime startdate, DateTime enddate , int car_id, int user_id)
+        public List<Brand> GetListBrand()
+        {
+            return db.Brands.ToList();
+        }
+
+        [WebMethod]
+        public List<int> GetListNbPlace()
+        {
+            List<int> nbPlaceList = new List<int>();
+            db.Cars.ToList().ForEach(c => {
+                if (c.PlaceNb != null && !nbPlaceList.Contains((int)c.PlaceNb))
+                    nbPlaceList.Add((int)c.PlaceNb);
+            });
+            return nbPlaceList;
+        }
+
+        #endregion
+
+        #region Bookings
+
+        // Réserver une voiture
+        [WebMethod]
+        public string BookCar(DateTime startdate, DateTime enddate, int car_id, int user_id)
         {
             try
             {
@@ -258,6 +289,8 @@ namespace VroomService
 
             return "Réservation annulée";
         }
+
+        #endregion
 
         #endregion
 
