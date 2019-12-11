@@ -126,9 +126,13 @@ namespace VroomService
                 User user = db.Users.FirstOrDefault(u => u.Id == userId);
 
                 user.Username = username;
-                user.Password = password;
                 user.Firstname = firstname;
                 user.Lastname = lastname;
+
+                if (password != "")
+                {
+                    user.Password = EncodePassword(password);
+                }
 
                 db.SaveChanges();
                 return "Modification enregistrée";
@@ -216,7 +220,14 @@ namespace VroomService
 
         #region Bookings
 
-        // Réserver une voiture
+        /// <summary>
+        /// Réserve une voiture
+        /// </summary>
+        /// <param name="startdate">Date de début</param>
+        /// <param name="enddate">Date de fin</param>
+        /// <param name="car_id">identifiant d'une voiture</param>
+        /// <param name="user_id">identifiant de l'utilisateur</param>
+        /// <returns></returns>
         [WebMethod]
         public string BookCar(DateTime startdate, DateTime enddate, int car_id, int user_id)
         {
